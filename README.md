@@ -3,8 +3,8 @@ This project is designed as part of a larger backend architecture for Turkcell, 
 ### 🔧 Technologies & Tools
 Here are some of the core technologies that make this project powerful:
 
-Spring Boot 🛠️: The backbone for building microservices.
-CQRS (Command Query Responsibility Segregation) 💡: Separates read and write logic for better performance.
+-Spring Boot 🛠️: The backbone for building microservices.
+-CQRS (Command Query Responsibility Segregation) 💡: Separates read and write logic for better performance.
 Hexagonal Architecture ⚙️: Ensures core business logic is decoupled from external systems like databases.
 Spring Cloud Config 🔑: Externalized configuration management.
 Eureka 🌐: Service discovery in the microservices ecosystem.
