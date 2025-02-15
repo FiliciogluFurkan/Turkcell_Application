@@ -3,20 +3,20 @@ This project is designed as part of a larger backend architecture for Turkcell, 
 ### 🔧 Technologies & Tools
 Here are some of the core technologies that make this project powerful:
 
--Spring Boot 🛠️: The backbone for building microservices.
--CQRS (Command Query Responsibility Segregation) 💡: Separates read and write logic for better performance.
-Hexagonal Architecture ⚙️: Ensures core business logic is decoupled from external systems like databases.
-Spring Cloud Config 🔑: Externalized configuration management.
-Eureka 🌐: Service discovery in the microservices ecosystem.
-Zipkin 🧵: Distributed tracing for monitoring and debugging.
-Kafka 📡: Asynchronous messaging for service communication.
-Docker 🐳: Containerization for easy deployment and scaling.
-Redis 🔥: Caching for performance improvement.
-Elasticsearch 🔍: Powerful search capabilities for fast data retrieval.
-API Gateway 🔐: Handles routing, security, and rate limiting.
-Saga Pattern 🔄: Manages long-running transactions in a distributed environment (coming soon!).
-MongoDB 🗄️: NoSQL database for flexible, scalable document-based storage.
-PostgreSQL 🛠️: Relational database for structured data storage with strong consistency, transactions, and complex queries.
+- Spring Boot 🛠️: The backbone for building microservices.
+- CQRS (Command Query Responsibility Segregation) 💡: Separates read and write logic for better performance.
+- Hexagonal Architecture ⚙️: Ensures core business logic is decoupled from external systems like databases.
+- Spring Cloud Config 🔑: Externalized configuration management.
+- Eureka 🌐: Service discovery in the microservices ecosystem.
+- Zipkin 🧵: Distributed tracing for monitoring and debugging.
+- Kafka 📡: Asynchronous messaging for service communication.
+- Docker 🐳: Containerization for easy deployment and scaling.
+- Redis 🔥: Caching for performance improvement.
+- Elasticsearch 🔍: Powerful search capabilities for fast data retrieval.
+- API Gateway 🔐: Handles routing, security, and rate limiting.
+- Saga Pattern 🔄: Manages long-running transactions in a distributed environment (coming soon!).
+- MongoDB 🗄️: NoSQL database for flexible, scalable document-based storage.
+- PostgreSQL 🛠️: Relational database for structured data storage with strong consistency, transactions, and complex queries.
 
 # 🎯 Features
 User & Package Management: Users can buy, update, and manage both main packages and extra packages.
