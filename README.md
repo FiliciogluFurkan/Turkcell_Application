@@ -15,6 +15,8 @@ Redis 🔥: Caching for performance improvement.
 Elasticsearch 🔍: Powerful search capabilities for fast data retrieval.
 API Gateway 🔐: Handles routing, security, and rate limiting.
 Saga Pattern 🔄: Manages long-running transactions in a distributed environment (coming soon!).
+MongoDB 🗄️: NoSQL database for flexible, scalable document-based storage.
+PostgreSQL 🛠️: Relational database for structured data storage with strong consistency, transactions, and complex queries.
 
 # 🎯 Features
 User & Package Management: Users can buy, update, and manage both main packages and extra packages.
