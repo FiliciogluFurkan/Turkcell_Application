@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: package-query
+  config:
+    import: "optional:configserver:http://localhost:8088"
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/packagequerydb
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: user-command-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
