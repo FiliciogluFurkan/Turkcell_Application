@@ -18,6 +18,7 @@
         <option value="$PROJECT_DIR$/extrapackage/pom.xml" />
         <option value="$PROJECT_DIR$/extrafeatures/pom.xml" />
         <option value="$PROJECT_DIR$/shakewin-service/pom.xml" />
+        <option value="$PROJECT_DIR$/api-gateaway/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

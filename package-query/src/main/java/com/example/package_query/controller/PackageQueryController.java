@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -21,8 +22,8 @@ public class PackageQueryController {
     private final PackageQueryService packageQueryService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PackageResponseDto>>> getAllUsers() {
-        return ResponseEntity.ok(packageQueryService.getAllUsers());
+    public ResponseEntity<ApiResponse<List<PackageResponseDto>>> getAllPackages() {
+        return ResponseEntity.ok(packageQueryService.getAllPackages());
     }
 
     @GetMapping("/{id}")
@@ -34,5 +35,8 @@ public class PackageQueryController {
     public ResponseEntity<Boolean> isPackageExist(@PathVariable("id") Long packageId) {
     return ResponseEntity.ok(packageQueryService.isPackageExist(packageId));
     }
+
+
+
 }
 

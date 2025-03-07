@@ -5,9 +5,11 @@ import com.turkcell.user_query.dto.*;
 import com.turkcell.user_query.entity.UserEntity;
 import com.turkcell.user_query.mapper.UserMapper;
 import com.turkcell.user_query.repository.UserQueryRepository;
+import com.turkcell.user_query.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -111,4 +113,8 @@ public class UserService {
 
     }
 
+    public ApiResponse<List<UserResponseDto>> search(String name, Integer age, Boolean status) {
+        Specification<UserEntity> specification = Specification.where(UserSpecification.hasName(name)).and(UserSpecification.hasAgeGreaterThan(age)).and(UserSpecification.hasStatus(status));
+        return ApiResponse.success("Users retrieved succesfully with the specialized search", userQueryRepository.findAll(specification).stream().map(userMapper::convertEntityToResponseDto).toList());
+    }
 }

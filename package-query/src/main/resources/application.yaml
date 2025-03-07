@@ -3,6 +3,9 @@ spring:
     name: package-query
   config:
     import: "optional:configserver:http://localhost:8088"
+  redis:
+    host: localhost
+    port: 6379
 
   data:
     mongodb:

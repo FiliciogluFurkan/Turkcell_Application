@@ -13,6 +13,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_command_data:/var/lib/postgresql/data
+    networks:
+      - redis-network
 
   postgres-query:
     image: postgres:latest
@@ -26,6 +28,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres_query_data:/var/lib/postgresql/data
+    networks:
+      - redis-network
 
   postgres-package-command:
     image: postgres:latest
@@ -39,6 +43,8 @@ services:
       - "5434:5432"
     volumes:
       - postgres_package_command_data:/var/lib/postgresql/data
+    networks:
+      - redis-network
 
   extrapackage:
     image: postgres:latest
@@ -52,6 +58,8 @@ services:
       - "5435:5432"
     volumes:
       - postgres_extrapackage_data:/var/lib/postgresql/data
+    networks:
+      - redis-network
 
   extrafeatures:
     image: postgres:latest
@@ -65,6 +73,8 @@ services:
       - "5436:5432"
     volumes:
       - postgres_extrafeatures_data:/var/lib/postgresql/data
+    networks:
+      - redis-network
 
   shakewin:
     image: postgres:latest
@@ -78,7 +88,8 @@ services:
       - "5437:5432"
     volumes:
       - postgres_shakewin_data:/var/lib/postgresql/data
-
+    networks:
+      - redis-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -89,6 +100,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    networks:
+      - redis-network
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -104,17 +117,45 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
+    networks:
+      - redis-network
 
   mongodb:
     image: mongo:latest
     container_name: package-query-mongodb
     restart: always
     environment:
-      MONGO_INITDB_DATABASE: packagequerydb  # Veritabanı adı
+      MONGO_INITDB_DATABASE: packagequerydb
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - redis-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - redis-network
+
+  # API Gateway servisini ekleyin - bağımlılıklar olmadan
+  api-gateway:
+    image: nginx:latest  # Basit bir gateway için Nginx kullanabilirsiniz
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "80:80"  # Dış dünyaya açılan port
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Nginx konfigürasyonu için
+    # depends_on kısmını kaldırdık çünkü servisler henüz tanımlı değil
+    networks:
+      - redis-network
 
 volumes:
   postgres_command_data:
@@ -124,3 +165,8 @@ volumes:
   postgres_extrafeatures_data:
   postgres_shakewin_data:
   mongodb_data:
+  redis_data:
+
+networks:
+  redis-network:
+    driver: bridge

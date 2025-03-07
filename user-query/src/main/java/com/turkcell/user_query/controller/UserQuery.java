@@ -30,4 +30,9 @@ public class UserQuery {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
+    @GetMapping("/search/{name}/{age}/{status}")
+    public ResponseEntity<ApiResponse<List<UserResponseDto>>> search(@PathVariable("name") String name, @PathVariable("age") Integer age, @PathVariable("status") Boolean status) {
+        return ResponseEntity.ok(userService.search(name,age,status));
+    }
+
 }

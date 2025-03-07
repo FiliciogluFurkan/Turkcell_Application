@@ -8,6 +8,7 @@ import com.example.package_query.repository.PackageQueryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +24,33 @@ public class PackageQueryService {
     private final PackageQueryRepository packageQueryRepository;
     private final PackageMapper packageMapper;
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private static final String HASH_KEY = "Package";
 
-    public ApiResponse<List<PackageResponseDto>> getAllUsers() {
-        return ApiResponse.success("Packages have been retrieved",packageQueryRepository.findAll().stream().map(packageEntity -> packageMapper.convertEntityToResponse(packageEntity)).collect(Collectors.toList()));
+    public ApiResponse<List<PackageResponseDto>> getAllPackages() {
+        // Cache kontrolü
+        List<Object> cachedValues = redisTemplate.opsForHash().values(HASH_KEY);
+        if (!cachedValues.isEmpty()) {
+            List<PackageResponseDto> responseDtos = cachedValues.stream()
+                    .map(o -> objectMapper.convertValue(o, PackageResponseDto.class)) // OKUMA İÇİN UYUMLU
+                    .toList();
+            return ApiResponse.success("Packages retrieved from cache", responseDtos);
+        }
+
+        // Eğer Cache Boşsa DB'den Al ve Cache'e Kaydet
+        List<PackageEntity> packageEntities = packageQueryRepository.findAll();
+        List<PackageResponseDto> packageResponseDtos = packageEntities.stream()
+                .map(packageMapper::convertEntityToResponse)
+                .collect(Collectors.toList());
+
+        // Cache'e Kaydet
+        for (PackageResponseDto packageResponseDto : packageResponseDtos) {
+            redisTemplate.opsForHash().put(HASH_KEY, String.valueOf(packageResponseDto.getId()), packageResponseDto);
+        }
+
+        return ApiResponse.success("Packages have been retrieved from database", packageResponseDtos);
     }
+
 
     public ApiResponse<PackageResponseDto> getPackage(Long id) {
         return packageQueryRepository.findById(String.valueOf(id))
@@ -42,6 +66,7 @@ public class PackageQueryService {
             PackageEvent packageEvent = objectMapper.readValue(packageEventJson, PackageEvent.class);
             if (packageEvent.getEventType().equals("CREATE_PACKAGE")) {
                 packageQueryRepository.save(packageMapper.toEntity(packageEvent.getId(), packageEvent.getCreatePackageRequestDto()));
+                redisTemplate.opsForHash().put(HASH_KEY, String.valueOf(packageEvent.getId()), packageMapper.toEntity(packageEvent.getId(), packageEvent.getCreatePackageRequestDto()));
             } else if (packageEvent.getEventType().equals("UPDATE_PACKAGE")) {
                 PackageEntity packageEntity = packageQueryRepository.findById(String.valueOf(packageEvent.getId())).orElseThrow();
                 UpdatePackageRequestDto updatePackageRequestDto = packageEvent.getUpdatePackageRequestDto();
@@ -94,8 +119,8 @@ public class PackageQueryService {
                 extraFeatureIds = new ArrayList<>();
             }
 
-            if(!extraFeatureIds.contains(event.getExtraFeatureId()))
-            extraFeatureIds.add(event.getExtraFeatureId());
+            if (!extraFeatureIds.contains(event.getExtraFeatureId()))
+                extraFeatureIds.add(event.getExtraFeatureId());
 
             packageEntity.setExtraFeatureIds(extraFeatureIds);
             packageQueryRepository.save(packageEntity);
@@ -109,10 +134,12 @@ public class PackageQueryService {
     public Boolean isPackageExist(Long packageId) {
 
         ApiResponse<PackageResponseDto> responsedPackage = getPackage(packageId);
-        if(responsedPackage.isSuccess())
+        if (responsedPackage.isSuccess())
             return true;
 
         return false;
 
     }
+
+
 }
