@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +17,5 @@ public class AssignPackageEvent {
     private Long packageId;
     private Long extraPackageId;
     private Long shakeWinId;
-
+    private BigDecimal price;
 }

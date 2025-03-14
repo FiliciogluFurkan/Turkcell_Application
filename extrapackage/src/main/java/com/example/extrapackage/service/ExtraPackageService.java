@@ -4,6 +4,7 @@ package com.example.extrapackage.service;
 import com.example.extrapackage.dto.ApiResponse;
 import com.example.extrapackage.dto.CreateExtraPackageDto;
 import com.example.extrapackage.dto.ExtraPackageResponseDto;
+import com.example.extrapackage.dto.PackageExistAndPrice;
 import com.example.extrapackage.entity.ExtraPackageEntity;
 import com.example.extrapackage.mapper.ExtraPackageMapper;
 import com.example.extrapackage.repository.ExtraPackageRepository;
@@ -32,9 +33,10 @@ public class ExtraPackageService {
         ExtraPackageEntity savedEntity = extraPackageRepository.save(extraPackageMapper.toEntity(createExtraPackageDto));
         return ApiResponse.success("Extra Package added successfully", extraPackageMapper.toResponse(savedEntity));
     }
+
     public ApiResponse<List<ExtraPackageResponseDto>> getAllExtraPackage() {
 
-        return ApiResponse.success("ExtraPackages retrieved succesfully",extraPackageRepository.findAll().
+        return ApiResponse.success("ExtraPackages retrieved succesfully", extraPackageRepository.findAll().
                 stream().
                 filter(extraPackageEntity -> Objects.equals(Boolean.TRUE, extraPackageEntity.getStatus())).
                 map(extraPackageMapper::toResponse).
@@ -49,21 +51,26 @@ public class ExtraPackageService {
     }
 
 
-    public void deleteExtraPackage(Long id){
+    public void deleteExtraPackage(Long id) {
         ExtraPackageEntity extraPackageEntity = extraPackageRepository.findById(id).orElseThrow();
         extraPackageEntity.setStatus(false);
         extraPackageRepository.save(extraPackageEntity);
 
     }
 
-    public Boolean isExtraPackageExist(Long id) {
+    public PackageExistAndPrice isExtraPackageExist(Long id) {
 
         ApiResponse<ExtraPackageResponseDto> extraPackage = getExtraPackage(id);
-
-        if(extraPackage.isSuccess()){
-            return true;
+        PackageExistAndPrice packageExistAndPrice = new PackageExistAndPrice();
+        if(extraPackage.getData().getId()!=null){
+            packageExistAndPrice.setIsExist(Boolean.TRUE);
         }
-        return false;
+        else{
+            packageExistAndPrice.setIsExist(Boolean.FALSE);
+        }
+        packageExistAndPrice.setPrice(extraPackage.getData().getPrice());
+
+        return packageExistAndPrice;
 
 
     }

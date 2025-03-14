@@ -3,6 +3,7 @@ package com.example.extrapackage.controller;
 import com.example.extrapackage.dto.ApiResponse;
 import com.example.extrapackage.dto.CreateExtraPackageDto;
 import com.example.extrapackage.dto.ExtraPackageResponseDto;
+import com.example.extrapackage.dto.PackageExistAndPrice;
 import com.example.extrapackage.service.ExtraPackageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class ExtraPackageController {
     }
 
     @GetMapping("isextrapackageexist/{extrapackageid}")
-    public ResponseEntity<Boolean> isExtraPackageExist(@PathVariable("extrapackageid") Long id){
+    public ResponseEntity<PackageExistAndPrice> isExtraPackageExist(@PathVariable("extrapackageid") Long id){
         return ResponseEntity.ok(extraPackageService.isExtraPackageExist(id));
     }
 

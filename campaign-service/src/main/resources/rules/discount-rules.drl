@@ -1,0 +1,15 @@
+package rules;
+
+import com.example.campaign_service.dto.UserPackageInfo;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+rule "Discount if user has package 1"
+when
+    userPackageInfo: UserPackageInfo(mainPackageId == 1)
+then
+    BigDecimal discountRate = new BigDecimal("0.75");
+    BigDecimal newPrice = userPackageInfo.getExtraPackagePrice().multiply(discountRate).setScale(2, RoundingMode.HALF_UP);
+    userPackageInfo.setExtraPackagePrice(newPrice);
+    System.out.println("User has package 1, applying 25% discount!");
+end

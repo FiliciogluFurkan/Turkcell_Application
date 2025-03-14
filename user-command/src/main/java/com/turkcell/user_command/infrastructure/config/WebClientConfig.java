@@ -1,5 +1,6 @@
 package com.turkcell.user_command.infrastructure.config;
 
+import com.turkcell.user_command.adapters.in.client.CampaignClient;
 import com.turkcell.user_command.adapters.in.client.ExtraPackageClient;
 import com.turkcell.user_command.adapters.in.client.PackageClient;
 import com.turkcell.user_command.adapters.in.client.ShakeWinClient;
@@ -53,5 +54,18 @@ public class WebClientConfig {
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(shakeWinWebClient())).build();
         return httpServiceProxyFactory.createClient(ShakeWinClient.class);
     }
+    @Bean
+    public WebClient campaingWebClient(){
+        return WebClient.builder().baseUrl("http://campaign-service").filter(loadBalancedExchangeFilterFunction).build();
+    }
+
+    @Bean
+    public CampaignClient campaignClient(){
+        HttpServiceProxyFactory httpServiceProxyFactory=HttpServiceProxyFactory.builderFor(WebClientAdapter.create(campaingWebClient())).build();
+        return httpServiceProxyFactory.createClient(CampaignClient.class);
+
+    }
+
+
 
 }

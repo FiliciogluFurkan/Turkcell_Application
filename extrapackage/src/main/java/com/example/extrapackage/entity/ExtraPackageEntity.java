@@ -53,4 +53,8 @@ public class ExtraPackageEntity {
     private ZonedDateTime updatedTime;
     private Boolean status;
 
+    public void applyDiscount(BigDecimal discountPercentage) {
+        this.price = this.price.subtract(this.price.multiply(discountPercentage).divide(BigDecimal.valueOf(100)));
+    }
+
 }

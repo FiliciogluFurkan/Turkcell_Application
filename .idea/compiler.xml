@@ -16,35 +16,14 @@
         <module name="api-gateaway" />
         <module name="service-registry" />
       </profile>
-      <profile name="Annotation profile for user-command" enabled="true">
+      <profile name="Annotation profile for campaign-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath>
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
-        <module name="user-command" />
-      </profile>
-      <profile name="Annotation profile for shakewin-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath>
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
-        <module name="shakewin-service" />
-      </profile>
-      <profile name="Annotation profile for package-query" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath>
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
-        <module name="package-query" />
-        <module name="extrafeatures" />
-        <module name="package-command" />
-        <module name="extrapackage" />
+        <module name="campaign-service" />
       </profile>
       <profile name="Annotation profile for user-query" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -52,9 +31,15 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath>
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="user-query" />
+        <module name="shakewin-service" />
+        <module name="user-command" />
+        <module name="payment-service" />
+        <module name="package-command" />
+        <module name="extrapackage" />
+        <module name="package-query" />
+        <module name="extrafeatures" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -64,12 +49,14 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateaway" options="-parameters" />
+      <module name="campaign-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="extrafeatures" options="-parameters" />
       <module name="extrapackage" options="-parameters" />
       <module name="package" options="-parameters" />
       <module name="package-command" options="-parameters" />
       <module name="package-query" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />
       <module name="shakewin-service" options="-parameters" />
       <module name="user-command" options="-parameters" />

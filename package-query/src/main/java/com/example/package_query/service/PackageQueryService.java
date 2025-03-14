@@ -131,13 +131,19 @@ public class PackageQueryService {
     }
 
 
-    public Boolean isPackageExist(Long packageId) {
+    public PackageExistAndPrice isPackageExist(Long packageId) {
 
         ApiResponse<PackageResponseDto> responsedPackage = getPackage(packageId);
-        if (responsedPackage.isSuccess())
-            return true;
+        PackageExistAndPrice packageExistAndPrice = new PackageExistAndPrice();
+        if (responsedPackage.isSuccess()) {
+            packageExistAndPrice.setPrice(responsedPackage.getData().getPrice());
+            packageExistAndPrice.setIsPackageExist(true);
+            return packageExistAndPrice;
+        }
 
-        return false;
+        packageExistAndPrice.setIsPackageExist(false);
+        packageExistAndPrice.setPrice(null);
+        return packageExistAndPrice;
 
     }
 

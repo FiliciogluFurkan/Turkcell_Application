@@ -3,13 +3,12 @@ package com.turkcell.user_command.application.usecases;
 import brave.internal.extra.Extra;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.turkcell.user_command.adapters.in.client.CampaignClient;
 import com.turkcell.user_command.adapters.in.client.ExtraPackageClient;
 import com.turkcell.user_command.adapters.in.client.PackageClient;
 import com.turkcell.user_command.adapters.in.client.ShakeWinClient;
 import com.turkcell.user_command.application.dao.UserDao;
-import com.turkcell.user_command.application.dto.CreateUserRequestDto;
-import com.turkcell.user_command.application.dto.UpdateUserRequestDto;
-import com.turkcell.user_command.application.dto.UserResponseDto;
+import com.turkcell.user_command.application.dto.*;
 import com.turkcell.user_command.application.event.AssignPackageEvent;
 import com.turkcell.user_command.application.event.UserEvent;
 import com.turkcell.user_command.application.mapper.UserMapper;
@@ -21,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static com.turkcell.user_command.infrastructure.validationmessages.ValidationMessages.*;
@@ -37,6 +37,8 @@ public class UserUseCase {
     private final PackageClient packageClient;
     private final ExtraPackageClient extraPackageClient;
     private final ShakeWinClient shakeWinClient;
+    private final PackageAssignmentProducer packageAssignmentProducer;
+    private final CampaignClient campaignClient;
 
 
     public ApiResponse<UserResponseDto> saveUser(CreateUserRequestDto userRequestDto) throws JsonProcessingException {
@@ -86,35 +88,33 @@ public class UserUseCase {
     public ApiResponse assignPackageToUser(Long userId, Long packageId) throws JsonProcessingException {
 
         userDao.findUserById(userId).orElseThrow();
-        Boolean packageExists = packageClient.isPackageExist(packageId).getBody();
+        ResponseEntity<PackageExistAndPrice> packageExist = packageClient.isPackageExist(packageId);
 
-        if (!packageExists) {
+        if (!packageExist.getBody().getIsPackageExist()) {
             return ApiResponse.failure(PACKAGE_ASSIGMENT_FAILED);
         }
 
-        userDao.assignPackageToUser(userId, packageId);
 
-        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_PACKAGE", userId, packageId, null,null);
-        kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
+        packageAssignmentProducer.sendPackageAssignmentEvent(userId, packageId, packageExist.getBody().getPrice());
 
-        return ApiResponse.success(PACKAGE_ASSIGNED_SUCCESFULLY);
+        return ApiResponse.success(PAYMENT_IN_PROGRESS);
     }
 
     public ApiResponse assignExtraPackageToUser(Long userId, Long packageId) throws JsonProcessingException {
 
         userDao.findUserById(userId).orElseThrow();
-        ResponseEntity<Boolean> isExtraPackageExist = extraPackageClient.isExtraPackageExist(packageId);
+        ResponseEntity<PackageExistAndPrice> isExtraPackageExist = extraPackageClient.isExtraPackageExist(packageId);
 
-        if (!isExtraPackageExist.getBody()) {
+        if (!isExtraPackageExist.getBody().getIsPackageExist()) {
             return ApiResponse.failure(PACKAGE_ASSIGMENT_FAILED);
         }
 
-        userDao.assignExtraPackageToUser(userId, packageId);
+        BigDecimal newPrice=checkDiscount(userId,packageId,isExtraPackageExist.getBody().getPrice());
 
-        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_EXTRA_PACKAGE", userId, null, packageId,null);
-        kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
+        packageAssignmentProducer.sendExtraPackageAssignmentEvent(userId,packageId,newPrice);
 
-        return ApiResponse.success(PACKAGE_ASSIGNED_SUCCESFULLY);
+
+        return ApiResponse.success(PAYMENT_IN_PROGRESS);
 
 
     }
@@ -130,11 +130,43 @@ public class UserUseCase {
         Long packageId = shakeWinClient.getShakeWinRandomly().getBody();
         userDao.makeShakeWin(userId, packageId);
 
-        AssignPackageEvent assignPackageEvent=new AssignPackageEvent("MAKE_SHAKE_WIN",userId,null,null,packageId);
+        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("MAKE_SHAKE_WIN", userId, null, null, packageId, null);
         kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
 
         return ApiResponse.success(PACKAGE_ASSIGNED_SUCCESFULLY);
 
 
+    }
+
+    public void finalizePackageAssigment(Long userId, Long packageId) throws JsonProcessingException {
+
+
+        userDao.assignPackageToUser(userId, packageId);
+        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_PACKAGE", userId, packageId, null, null, null);
+        kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
+        log.info("Package assigned succesfully");
+
+    }
+
+    public BigDecimal checkDiscount(Long userId, Long extraPackageId, BigDecimal price) {
+
+        UserPackageInfo request = new UserPackageInfo();
+        request.setUserId(userId);
+        request.setMainPackageId(userDao.findUserById(userId).get().packageId());
+        request.setExtraPackageId(extraPackageId);
+        request.setExtraPackagePrice(price);
+
+        ResponseEntity<UserPackageInfo> userPackageInfoResponseEntity = campaignClient.applyDiscount(request);
+
+        return userPackageInfoResponseEntity.getBody().getExtraPackagePrice();
+    }
+
+
+    public void finalizeExtraPackageAssignment(Long userId, Long packageId) throws JsonProcessingException {
+
+        userDao.assignExtraPackageToUser(userId, packageId);
+        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_EXTRA_PACKAGE", userId, null, packageId, null, null);
+        kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
+        log.info("Extra Package Assigned Succesfully");
     }
 }

@@ -2,6 +2,7 @@ package com.example.package_query.controller;
 
 
 import com.example.package_query.dto.ApiResponse;
+import com.example.package_query.dto.PackageExistAndPrice;
 import com.example.package_query.dto.PackageResponseDto;
 import com.example.package_query.service.PackageQueryService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class PackageQueryController {
     }
 
     @GetMapping("ispackageexist/{id}")
-    public ResponseEntity<Boolean> isPackageExist(@PathVariable("id") Long packageId) {
+    public ResponseEntity<PackageExistAndPrice> isPackageExist(@PathVariable("id") Long packageId) {
     return ResponseEntity.ok(packageQueryService.isPackageExist(packageId));
     }
 

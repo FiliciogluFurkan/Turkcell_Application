@@ -91,6 +91,21 @@ services:
     networks:
       - redis-network
 
+  payment:
+    image: postgres:latest
+    container_name: payment
+    restart: always
+    environment:
+      POSTGRES_USER: furkan
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: payment
+    ports:
+      - "5438:5432"
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+    networks:
+      - redis-network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
@@ -166,6 +181,7 @@ volumes:
   postgres_shakewin_data:
   mongodb_data:
   redis_data:
+  postgres_payment_data:
 
 networks:
   redis-network:
