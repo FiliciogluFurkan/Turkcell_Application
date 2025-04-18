@@ -17,13 +17,13 @@ public class PackageAssignmentProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    public void sendPackageAssignmentEvent(Long userId, Long packageId, BigDecimal price) throws JsonProcessingException {
-        AssignPackageEvent event = new AssignPackageEvent("PACKAGE", userId, packageId, null, null, price);
+    public void sendPackageAssignmentEvent(Long userId, Long packageId, BigDecimal price,String discountReason) throws JsonProcessingException {
+        AssignPackageEvent event = new AssignPackageEvent("PACKAGE", userId, packageId, null, null, price,null);
         kafkaTemplate.send("make-payment", objectMapper.writeValueAsString(event));
     }
 
-    public void sendExtraPackageAssignmentEvent(Long userId, Long packageId, BigDecimal price) throws JsonProcessingException {
-        AssignPackageEvent event = new AssignPackageEvent("EXTRA_PACKAGE", userId, null, packageId, null, price);
+    public void sendExtraPackageAssignmentEvent(Long userId, Long packageId, BigDecimal price,String discountReason) throws JsonProcessingException {
+        AssignPackageEvent event = new AssignPackageEvent("EXTRA_PACKAGE", userId, null, packageId, null, price,discountReason);
         kafkaTemplate.send("make-payment", objectMapper.writeValueAsString(event));
     }
 

@@ -62,10 +62,9 @@ public class ExtraPackageService {
 
         ApiResponse<ExtraPackageResponseDto> extraPackage = getExtraPackage(id);
         PackageExistAndPrice packageExistAndPrice = new PackageExistAndPrice();
-        if(extraPackage.getData().getId()!=null){
+        if (extraPackage.getData().getId() != null) {
             packageExistAndPrice.setIsExist(Boolean.TRUE);
-        }
-        else{
+        } else {
             packageExistAndPrice.setIsExist(Boolean.FALSE);
         }
         packageExistAndPrice.setPrice(extraPackage.getData().getPrice());

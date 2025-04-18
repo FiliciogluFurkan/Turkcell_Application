@@ -11,5 +11,6 @@ then
     BigDecimal discountRate = new BigDecimal("0.75");
     BigDecimal newPrice = userPackageInfo.getExtraPackagePrice().multiply(discountRate).setScale(2, RoundingMode.HALF_UP);
     userPackageInfo.setExtraPackagePrice(newPrice);
+    userPackageInfo.setDiscountReason("user has package 1 so %25 discount applied");
     System.out.println("User has package 1, applying 25% discount!");
 end

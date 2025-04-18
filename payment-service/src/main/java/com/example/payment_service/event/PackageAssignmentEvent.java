@@ -14,5 +14,13 @@ public class PackageAssignmentEvent {
     private Long extraPackageId;
     private Long shakeWinId;
     private BigDecimal price;
+    private String discountReason;
 
+    private String cardHolderName;
+    private String cardNumber;
+    private String expireMonth;
+    private String expireYear;
+    private String cvc;
 }
+
+

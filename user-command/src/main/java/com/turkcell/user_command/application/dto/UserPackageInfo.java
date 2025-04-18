@@ -10,4 +10,5 @@ public class UserPackageInfo {
     private Long mainPackageId;
     private Long extraPackageId;
     private BigDecimal extraPackagePrice;
+    private String discountReason;
 }

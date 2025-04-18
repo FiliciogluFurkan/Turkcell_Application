@@ -95,7 +95,7 @@ public class UserUseCase {
         }
 
 
-        packageAssignmentProducer.sendPackageAssignmentEvent(userId, packageId, packageExist.getBody().getPrice());
+        packageAssignmentProducer.sendPackageAssignmentEvent(userId, packageId, packageExist.getBody().getPrice(),null);
 
         return ApiResponse.success(PAYMENT_IN_PROGRESS);
     }
@@ -109,9 +109,9 @@ public class UserUseCase {
             return ApiResponse.failure(PACKAGE_ASSIGMENT_FAILED);
         }
 
-        BigDecimal newPrice=checkDiscount(userId,packageId,isExtraPackageExist.getBody().getPrice());
+        UserPackageInfo userPackageInfo=checkDiscount(userId,packageId,isExtraPackageExist.getBody().getPrice());
 
-        packageAssignmentProducer.sendExtraPackageAssignmentEvent(userId,packageId,newPrice);
+        packageAssignmentProducer.sendExtraPackageAssignmentEvent(userId,packageId,userPackageInfo.getExtraPackagePrice(),userPackageInfo.getDiscountReason());
 
 
         return ApiResponse.success(PAYMENT_IN_PROGRESS);
@@ -130,7 +130,7 @@ public class UserUseCase {
         Long packageId = shakeWinClient.getShakeWinRandomly().getBody();
         userDao.makeShakeWin(userId, packageId);
 
-        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("MAKE_SHAKE_WIN", userId, null, null, packageId, null);
+        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("MAKE_SHAKE_WIN", userId, null, null, packageId, null,null);
         kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
 
         return ApiResponse.success(PACKAGE_ASSIGNED_SUCCESFULLY);
@@ -142,13 +142,13 @@ public class UserUseCase {
 
 
         userDao.assignPackageToUser(userId, packageId);
-        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_PACKAGE", userId, packageId, null, null, null);
+        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_PACKAGE", userId, packageId, null, null, null,null);
         kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
         log.info("Package assigned succesfully");
 
     }
 
-    public BigDecimal checkDiscount(Long userId, Long extraPackageId, BigDecimal price) {
+    public UserPackageInfo checkDiscount(Long userId, Long extraPackageId, BigDecimal price) {
 
         UserPackageInfo request = new UserPackageInfo();
         request.setUserId(userId);
@@ -158,14 +158,14 @@ public class UserUseCase {
 
         ResponseEntity<UserPackageInfo> userPackageInfoResponseEntity = campaignClient.applyDiscount(request);
 
-        return userPackageInfoResponseEntity.getBody().getExtraPackagePrice();
+        return userPackageInfoResponseEntity.getBody();
     }
 
 
     public void finalizeExtraPackageAssignment(Long userId, Long packageId) throws JsonProcessingException {
 
         userDao.assignExtraPackageToUser(userId, packageId);
-        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_EXTRA_PACKAGE", userId, null, packageId, null, null);
+        AssignPackageEvent assignPackageEvent = new AssignPackageEvent("ASSIGN_EXTRA_PACKAGE", userId, null, packageId, null, null,null);
         kafkaTemplate.send("assign-package-to-user-event", objectMapper.writeValueAsString(assignPackageEvent));
         log.info("Extra Package Assigned Succesfully");
     }

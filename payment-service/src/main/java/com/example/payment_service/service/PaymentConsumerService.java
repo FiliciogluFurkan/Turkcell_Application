@@ -17,24 +17,37 @@ public class PaymentConsumerService {
     private final ObjectMapper objectMapper;
     private final PaymentService paymentService;
 
-
     @KafkaListener(topics = "make-payment", groupId = "payment")
     public void listenPackageAssigment(String paymentEvent) throws JsonProcessingException {
 
-        PackageAssignmentEvent packageAssignmentEvent = objectMapper.readValue(paymentEvent, PackageAssignmentEvent.class);
-        Boolean isPaymentSuccessfull = paymentService.processPayment(packageAssignmentEvent.getType(),packageAssignmentEvent.getUserId(),packageAssignmentEvent.getExtraPackageId(), packageAssignmentEvent.getPrice());
+        PackageAssignmentEvent event = objectMapper.readValue(paymentEvent, PackageAssignmentEvent.class);
 
-        PaymentProcessedEvent paymentProcessedEvent = new PaymentProcessedEvent(
-                packageAssignmentEvent.getType(),
-                packageAssignmentEvent.getUserId(),
-                packageAssignmentEvent.getPackageId(),
+        String cardHolderName = "Ahmet Yılmaz";
+        String cardNumber = "5890040000000016";
+        String expireMonth = "12";
+        String expireYear = "2025";
+        String cvc = "152";
+
+        Boolean isPaymentSuccessfull = paymentService.processPayment(
+                event.getType(),
+                event.getUserId(),
+                event.getExtraPackageId(),
+                event.getPrice(),
+                event.getDiscountReason(),
+                cardHolderName,
+                cardNumber,
+                expireMonth,
+                expireYear,
+                cvc
+        );
+
+        PaymentProcessedEvent processedEvent = new PaymentProcessedEvent(
+                event.getType(),
+                event.getUserId(),
+                event.getType().equals("PACKAGE")? event.getPackageId() : event.getExtraPackageId(),
                 isPaymentSuccessfull
         );
 
-        kafkaTemplate.send("payment-processed", objectMapper.writeValueAsString(paymentProcessedEvent));
-
-
+        kafkaTemplate.send("payment-processed", objectMapper.writeValueAsString(processedEvent));
     }
-
-
 }

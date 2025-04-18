@@ -33,3 +33,18 @@ spring:
 logging:
   level:
     org.springframework.kafka: DEBUG
+
+
+iyzico:
+  api:
+    key: sandbox-gY2yNQTA9RI4IJWdrIPfBJgnk8MJzRoy
+  secret:
+    key: sandbox-dzqAVY4BVbLXY3omAEyQcRi1debCOr3w
+  baseUrl: https://sandbox-api.iyzipay.com
+
+  logging:
+    level:
+      org:
+        springframework: DEBUG
+      com:
+        iyzipay: DEBUG
